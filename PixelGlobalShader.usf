@@ -1,0 +1,10 @@
+#include "Common.usf"
+
+//Texture2D<float4> InTexture;
+
+void Main(in float2 InUV : TEXCOORD0,
+		  out float4 OutColor : SV_Target0)
+{
+	//OutColor = PSUniform.MyColor;
+	OutColor = float4(InUV, 0.0f, 1.0f);
+}
