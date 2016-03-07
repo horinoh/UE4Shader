@@ -48,7 +48,8 @@ void UShaderComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction );
 
-	UniformBuffer.Color = FVector4(1.0f, 1.0f, 1.0f, 1.0f);
+	UniformBuffer.AspectRatio = TextureRenderTarget2D->GetSurfaceWidth() / TextureRenderTarget2D->GetSurfaceHeight();
+	UniformBuffer.Timer = GetWorld()->GetTimeSeconds();
 	ENQUEUE_UNIQUE_RENDER_COMMAND_ONEPARAMETER(Draw,
 		UShaderComponent*, ShaderComp, this,
 		{

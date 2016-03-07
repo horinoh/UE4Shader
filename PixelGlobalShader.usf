@@ -1,10 +1,133 @@
 #include "Common.usf"
 
-//Texture2D<float4> InTexture;
+#if 1
+float Mod(const float x, const float y)
+{
+	//!< GLSL : float mod(const float x, const float y) { return x - y * floor(x / y); }
+	//!< HLSL : float modf(const float x, const float y) { return x - y * trunc(x / y); }
+	return x - y * floor(x / y);
+}
+float3 Mod(const float3 x, const float y)
+{
+	return x - y * floor(x / y);
+}
+
+float DistanceFunction_Sphere(const float3 Ray, const float3 Center, const float Radius)
+{
+	return length(Ray - Center) - Radius;
+}
+float3 DistanceFunction_SphereNormal(const float3 Ray, const float3 Center, const float Radius)
+{
+	const float3 DeltaX = float3(0.001f, 0.0f, 0.0f);
+	const float3 DeltaY = float3(0.0f, 0.001f, 0.0f);
+	const float3 DeltaZ = float3(0.0f, 0.0f, 0.001f);
+	return normalize(float3(DistanceFunction_Sphere(Ray + DeltaX, Center, Radius) - DistanceFunction_Sphere(Ray - DeltaX, Center, Radius),
+		                    DistanceFunction_Sphere(Ray + DeltaY, Center, Radius) - DistanceFunction_Sphere(Ray - DeltaY, Center, Radius),
+		                    DistanceFunction_Sphere(Ray + DeltaZ, Center, Radius) - DistanceFunction_Sphere(Ray - DeltaZ, Center, Radius)));
+}
+
+float DistanceFunction_Torus(const float3 Ray, const float3 Center, const float2 Radius)
+{
+	const float3 Pos = Ray - Center;
+	return length(float2(length(Pos.xy) - Radius.x, Pos.z)) - Radius.y;
+}
+float3 DistanceFunction_TorusNormal(const float3 Ray, const float3 Center, const float2 Radius)
+{
+	const float3 DeltaX = float3(0.001f, 0.0f, 0.0f);
+	const float3 DeltaY = float3(0.0f, 0.001f, 0.0f);
+	const float3 DeltaZ = float3(0.0f, 0.0f, 0.001f);
+	return normalize(float3(DistanceFunction_Torus(Ray + DeltaX, Center, Radius) - DistanceFunction_Torus(Ray - DeltaX, Center, Radius),
+		                    DistanceFunction_Torus(Ray + DeltaY, Center, Radius) - DistanceFunction_Torus(Ray - DeltaY, Center, Radius),
+		                    DistanceFunction_Torus(Ray + DeltaZ, Center, Radius) - DistanceFunction_Torus(Ray - DeltaZ, Center, Radius)));
+}
+
+float3 Diffuse(const float3 MaterialColor, const float3 LightColor, const float LN)
+{
+	return saturate(saturate(LN) * MaterialColor * LightColor);
+}
+float3 Blinn(const float3 MaterialColor, const float4 LightColor, const float LN, const float3 L, const float3 N, const float3 V)
+{
+	return saturate(saturate(sign(LN)) * pow(saturate(dot(N, normalize(V + L))), LightColor.a) * LightColor.rgb * MaterialColor);
+}
+float3 Phong(const float3 MaterialColor, const float4 LightColor, const float LN, const float3 L, const float3 N, const float3 V)
+{
+	return saturate(saturate(sign(LN)) * pow(saturate(dot(reflect(-L, N), V)), LightColor.a) * LightColor.rgb * MaterialColor);
+}
+float3 Specular(const float3 MaterialColor, const float4 LightColor, const float LN, const float3 L, const float3 N, const float3 V)
+{
+	//return Blinn(MaterialColor, LightColor, LN, L, N, V);
+	return Phong(MaterialColor, LightColor, LN, L, N, V);
+}
+#endif
 
 void Main(in float2 InUV : TEXCOORD0,
 		  out float4 OutColor : SV_Target0)
 {
-	//OutColor = PSUniform.MyColor;
+#if 1
+	const float2 ClipSpace = InUV * 2.0f - 1.0f;
+	
+	//!< カメラ
+	const float PI = 4.0f * atan(1.0f);
+	const float Radian = Mod(PSUniform.Timer * 0.5f, PI);
+	const float3 CameraPos = float3(2.0f * cos(Radian), 0.0f, 2.0f * sin(Radian));
+	const float3 CameraTag = float3(0.0f, 0.0f, 0.0f);
+	const float3 CameraUp = float3(0.0f, 1.0f, 0.0f);
+
+	//!< レイ
+	const float3 Forward = normalize(CameraTag - CameraPos);
+	const float3 Right = normalize(cross(Forward, CameraUp));
+	const float3 Up = cross(Right, Forward);
+	const float3 Ray = normalize(Forward + ClipSpace.x * Right * PSUniform.AspectRatio + ClipSpace.y * Up);
+
+	//!< プリミティブのパラメータ
+	static const float3 Center = float3(0.0f, 0.0f, 0.0f);
+	static const float2 Radius = float2(1.0f, 0.5f);
+
+	//!< レイマーチング
+	float3 Pos = CameraPos;
+	float Distance = 0.0f;
+	float Length = 0.0f;
+	const float Repeate = 8.0f;
+	const int Iterations = 16;
+	for (int i = 0; i < Iterations; ++i){
+		//!< 距離関数 : サーフェスに対し、外部なら正の値、内部なら負の値を返す
+		Distance = DistanceFunction_Torus(Pos, Center, Radius);
+		//Distance = DistanceFunction_Sphere(Pos, Center, Radius.x);
+
+		//!< 距離に応じて、レイを進める (距離が負なら戻されることになる)
+		Length += Distance;
+		Pos = CameraPos + Ray * Length;
+
+		//!< リピート
+		Pos = Mod(Pos, Repeate) - Repeate * 0.5f;
+	}
+
+	//!< シェーディング
+	const float3 LightDirection = float3(0.0f, -1.0f, 0.0f);	
+	const float3 N = DistanceFunction_TorusNormal(Pos, Center, Radius);	
+	//const float3 N = DistanceFunction_SphereNormal(Pos, Center, Radius.x);	
+ 	const float3 L = normalize(LightDirection);
+ 	const float3 V = -Ray;
+	const float LN = dot(L, N);
+	const float3 Ambient = float3(0.25f, 0.25f, 0.25f);
+ 	const float3 MaterialColor = float3(0.5f, 0.5f, 0.5f);
+ 	const float4 LightColor = float4(0.5f, 0.5f, 0.5f, 32.0f);
+ 	const float Attenuate = 1.0;
+ 	const float Spot = 1.0;
+	const float3 Color = (Ambient + (Diffuse(MaterialColor, LightColor.rgb, LN) + Specular(MaterialColor, LightColor, LN, L, N, V)) * Attenuate) * Spot;
+
+	//!< BGカラー
+	const float3 BackGroundColor = float3(0.5f, 0.5f, 1.0f);
+	
+	//!< サーフェスを表示するため、距離の絶対値がほぼ 0.0f なら 1 、それ以外なら 0 になるようなマスク値
+	const float Mask = max(sign(0.01f - abs(Distance)), 0.0f);
+	const float InvMask = 1.0f - Mask;
+
+	//!< サーフェスカラーとBGカラーをマスク値を使用して排他的に描画
+	OutColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	OutColor.rgb += Color * Mask;
+	OutColor.rgb += BackGroundColor * InvMask;
+#else
 	OutColor = float4(InUV, 0.0f, 1.0f);
+#endif
 }
