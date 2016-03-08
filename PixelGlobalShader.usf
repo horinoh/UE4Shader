@@ -1,14 +1,9 @@
 #include "Common.usf"
 
-#if 1
-float Mod(const float x, const float y)
-{
-	//!< GLSL : float mod(const float x, const float y) { return x - y * floor(x / y); }
-	//!< HLSL : float modf(const float x, const float y) { return x - y * trunc(x / y); }
-	return x - y * floor(x / y);
-}
 float3 Mod(const float3 x, const float y)
 {
+	//!< GLSL : float mod(const float x, const float y) { return x - y * floor(x / y); }
+	//!< HLSL : float fmod(const float x, const float y) { return x - y * trunc(x / y); }
 	return x - y * floor(x / y);
 }
 
@@ -58,7 +53,6 @@ float3 Specular(const float3 MaterialColor, const float4 LightColor, const float
 	//return Blinn(MaterialColor, LightColor, LN, L, N, V);
 	return Phong(MaterialColor, LightColor, LN, L, N, V);
 }
-#endif
 
 void Main(in float2 InUV : TEXCOORD0,
 		  out float4 OutColor : SV_Target0)
@@ -68,7 +62,7 @@ void Main(in float2 InUV : TEXCOORD0,
 	
 	//!< カメラ
 	const float PI = 4.0f * atan(1.0f);
-	const float Radian = Mod(PSUniform.Timer * 0.5f, PI);
+	const float Radian = fmod(PSUniform.Timer, PI);
 	const float3 CameraPos = float3(2.0f * cos(Radian), 0.0f, 2.0f * sin(Radian));
 	const float3 CameraTag = float3(0.0f, 0.0f, 0.0f);
 	const float3 CameraUp = float3(0.0f, 1.0f, 0.0f);
@@ -91,8 +85,8 @@ void Main(in float2 InUV : TEXCOORD0,
 	const int Iterations = 16;
 	for (int i = 0; i < Iterations; ++i){
 		//!< 距離関数 : サーフェスに対し、外部なら正の値、内部なら負の値を返す
-		Distance = DistanceFunction_Torus(Pos, Center, Radius);
-		//Distance = DistanceFunction_Sphere(Pos, Center, Radius.x);
+		//Distance = DistanceFunction_Torus(Pos, Center, Radius);
+		Distance = DistanceFunction_Sphere(Pos, Center, Radius.x);
 
 		//!< 距離に応じて、レイを進める (距離が負なら戻されることになる)
 		Length += Distance;
@@ -104,8 +98,8 @@ void Main(in float2 InUV : TEXCOORD0,
 
 	//!< シェーディング
 	const float3 LightDirection = float3(0.0f, -1.0f, 0.0f);	
-	const float3 N = DistanceFunction_TorusNormal(Pos, Center, Radius);	
-	//const float3 N = DistanceFunction_SphereNormal(Pos, Center, Radius.x);	
+	//const float3 N = DistanceFunction_TorusNormal(Pos, Center, Radius);	
+	const float3 N = DistanceFunction_SphereNormal(Pos, Center, Radius.x);	
  	const float3 L = normalize(LightDirection);
  	const float3 V = -Ray;
 	const float LN = dot(L, N);

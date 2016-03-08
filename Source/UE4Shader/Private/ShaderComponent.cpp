@@ -29,7 +29,7 @@ void UShaderComponent::InitializeComponent()
 	TextureRenderTarget2D = NewObject<UTextureRenderTarget2D>(this);
 	if (nullptr != TextureRenderTarget2D)
 	{
-		TextureRenderTarget2D->InitAutoFormat(512, 512);
+		TextureRenderTarget2D->InitAutoFormat(1024, 1024);
 		//RenderTarget2D->OverrideFormat = EPixelFormat::PF_A32B32G32R32F;
 		//RenderTarget2D->bNeedsTwoCopies = false;
 		//RenderTarget2D->AddressX = TextureAddress::TA_Wrap;
