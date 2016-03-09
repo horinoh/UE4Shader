@@ -62,7 +62,8 @@ void Main(in float2 InUV : TEXCOORD0,
 	
 	//!< ƒJƒƒ‰
 	const float PI = 4.0f * atan(1.0f);
-	const float Radian = fmod(PSUniform.Timer, PI);
+	const float Speed = 0.3f;
+	const float Radian = fmod(PSUniform.Timer * Speed, PI);
 	const float3 CameraPos = float3(2.0f * cos(Radian), 0.0f, 2.0f * sin(Radian));
 	const float3 CameraTag = float3(0.0f, 0.0f, 0.0f);
 	const float3 CameraUp = float3(0.0f, 1.0f, 0.0f);
@@ -103,7 +104,7 @@ void Main(in float2 InUV : TEXCOORD0,
  	const float3 L = normalize(LightDirection);
  	const float3 V = -Ray;
 	const float LN = dot(L, N);
-	const float3 Ambient = float3(0.25f, 0.25f, 0.25f);
+	const float3 Ambient = float3(0.1f, 0.1f, 0.1f);
  	const float3 MaterialColor = float3(0.5f, 0.5f, 0.5f);
  	const float4 LightColor = float4(0.5f, 0.5f, 0.5f, 32.0f);
  	const float Attenuate = 1.0;
