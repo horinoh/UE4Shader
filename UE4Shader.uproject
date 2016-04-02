@@ -7,7 +7,7 @@
 		{
 			"Name": "UE4Shader",
 			"Type": "Runtime",
-      "LoadingPhase": "PostConfigInit",
+			"LoadingPhase": "PostConfigInit",
 			"AdditionalDependencies": [
 				"Engine"
 			]
