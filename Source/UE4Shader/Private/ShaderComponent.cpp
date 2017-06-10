@@ -4,6 +4,7 @@
 #include "ShaderComponent.h"
 
 #include "RHIStaticStates.h"
+#include "PipelineStateCache.h"
 
 #include "VertexGlobalShader.h"
 
@@ -66,16 +67,24 @@ void UShaderComponent::Draw()
 
 		SetRenderTarget(CommandList, TextureRenderTarget2D->GetRenderTargetResource()->GetRenderTargetTexture(), FTexture2DRHIRef());
 
-		CommandList.SetBlendState(TStaticBlendState<>::GetRHI());
-		CommandList.SetRasterizerState(TStaticRasterizerState<>::GetRHI());
-		CommandList.SetDepthStencilState(TStaticDepthStencilState<false, CF_Always>::GetRHI());
-
 		TShaderMapRef<FVertexGlobalShader> VertexShader(GetGlobalShaderMap(ERHIFeatureLevel::Type::SM5));
 		TShaderMapRef<FPixelGlobalShader> PixelShader(GetGlobalShaderMap(ERHIFeatureLevel::Type::SM5));
 
-		static FGlobalBoundShaderState GlobalBoundShaderState;
-		//!< GVertexDeclaration はこのファイルの先頭で定義してある
-		SetGlobalBoundShaderState(CommandList, ERHIFeatureLevel::Type::SM5, GlobalBoundShaderState, GVertexDeclaration.VertexDeclarationRHI, *VertexShader, *PixelShader);
+		{
+			FGraphicsPipelineStateInitializer GraphicsPS;
+
+			GraphicsPS.RasterizerState = TStaticRasterizerState<>::GetRHI();
+			GraphicsPS.BlendState = TStaticBlendState<>::GetRHI();
+			GraphicsPS.DepthStencilState = TStaticDepthStencilState<false, CF_Always>::GetRHI();
+
+			//!< GVertexDeclaration はこのファイルの先頭で定義してある
+			GraphicsPS.BoundShaderState.VertexDeclarationRHI = GVertexDeclaration.VertexDeclarationRHI;
+			GraphicsPS.BoundShaderState.VertexShaderRHI = GETSAFERHISHADER_VERTEX(*VertexShader);
+			GraphicsPS.BoundShaderState.PixelShaderRHI = GETSAFERHISHADER_PIXEL(*PixelShader);
+			//GraphicsPS.PrimitiveType = PT_TriangleStrip;
+
+			SetGraphicsPipelineState(CommandList, GraphicsPS, EApplyRendertargetOption::ForceApply);
+		}
 
 		PixelShader->SetUniformBuffer(CommandList, UniformBuffer);
 		//PixelShader->SetSRV(CommandList, SRV);

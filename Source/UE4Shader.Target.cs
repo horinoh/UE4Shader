@@ -5,21 +5,10 @@ using System.Collections.Generic;
 
 public class UE4ShaderTarget : TargetRules
 {
-	public UE4ShaderTarget(TargetInfo Target)
+	public UE4ShaderTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
-	}
 
-	//
-	// TargetRules interface.
-	//
-
-	public override void SetupBinaries(
-		TargetInfo Target,
-		ref List<UEBuildBinaryConfiguration> OutBuildBinaryConfigurations,
-		ref List<string> OutExtraModuleNames
-		)
-	{
-		OutExtraModuleNames.AddRange( new string[] { "UE4Shader" } );
+		ExtraModuleNames.Add("UE4Shader");
 	}
 }
