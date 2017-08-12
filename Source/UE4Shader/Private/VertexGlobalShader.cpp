@@ -8,8 +8,4 @@ FVertexGlobalShader::FVertexGlobalShader(const ShaderMetaType::CompiledShaderIni
 {
 }
 
-/**
-@note シェーダファイル名が "VertexGlobalShader" (.usfファイル名、ファイルはEngine/Shaders/以下へコピーしておく)
-@note コールされるシェーダ関数名が "Main"
-*/
-IMPLEMENT_SHADER_TYPE(, FVertexGlobalShader, TEXT("VertexGlobalShader"), TEXT("Main"), SF_Vertex);
+IMPLEMENT_SHADER_TYPE(, FVertexGlobalShader, TEXT("/Project/Private/VertexGlobalShader.usf"), TEXT("Main"), SF_Vertex);

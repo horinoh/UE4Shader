@@ -1,4 +1,6 @@
-#include "Common.usf"
+//!< PSUniform ‚É•K—v
+//!< Need to use PSUniform
+#include "/Engine/Generated/GeneratedUniformBuffers.ush"
 
 float3 Mod(const float3 x, const float y)
 {

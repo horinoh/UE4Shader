@@ -5,9 +5,6 @@
 
 #include "ShaderParameterUtils.h"
 
-/**
-@brief ユニフォームバッファ
-*/
 IMPLEMENT_UNIFORM_BUFFER_STRUCT(FPixelShaderUniformBuffer, TEXT("PSUniform"))
 
 FPixelGlobalShader::FPixelGlobalShader(const ShaderMetaType::CompiledShaderInitializerType& Initializer)
@@ -28,8 +25,4 @@ void FPixelGlobalShader::SetUniformBuffer(FRHICommandList& CommandList, const FP
 	SetUniformBufferParameter(CommandList, GetPixelShader(), GetUniformBufferParameter<FPixelShaderUniformBuffer>(), Buffer);
 }
 
-/**
-@note シェーダファイル名が "PixelGlobalShader" (.usfファイル名、ファイルはEngine/Shaders/以下へコピーしておく)
-@note コールされるシェーダ関数名が "Main"
-*/
-IMPLEMENT_SHADER_TYPE(, FPixelGlobalShader, TEXT("PixelGlobalShader"), TEXT("Main"), SF_Pixel);
+IMPLEMENT_SHADER_TYPE(, FPixelGlobalShader, TEXT("/Project/Private/PixelGlobalShader.usf"), TEXT("Main"), SF_Pixel);
