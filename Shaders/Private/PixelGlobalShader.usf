@@ -62,7 +62,7 @@ void Main(in float2 InUV : TEXCOORD0,
 #if 1
 	const float2 ClipSpace = InUV * 2.0f - 1.0f;
 	
-	//!< カメラ
+	//!< カメラ Camera
 	const float PI = 4.0f * atan(1.0f);
 	const float Speed = 0.3f;
 	const float Radian = fmod(PSUniform.Timer * Speed, PI);
@@ -70,36 +70,36 @@ void Main(in float2 InUV : TEXCOORD0,
 	const float3 CameraTag = float3(0.0f, 0.0f, 0.0f);
 	const float3 CameraUp = float3(0.0f, 1.0f, 0.0f);
 
-	//!< レイ
+	//!< レイ Ray
 	const float3 Forward = normalize(CameraTag - CameraPos);
 	const float3 Right = normalize(cross(Forward, CameraUp));
 	const float3 Up = cross(Right, Forward);
 	const float3 Ray = normalize(Forward + ClipSpace.x * Right * PSUniform.AspectRatio + ClipSpace.y * Up);
 
-	//!< プリミティブのパラメータ
+	//!< プリミティブのパラメータ Parameter of primitive
 	static const float3 Center = float3(0.0f, 0.0f, 0.0f);
 	static const float2 Radius = float2(1.0f, 0.5f);
 
-	//!< レイマーチング
+	//!< レイマーチング Ray marching
 	float3 Pos = CameraPos;
 	float Distance = 0.0f;
 	float Length = 0.0f;
 	const float Repeate = 8.0f;
 	const int Iterations = 16;
 	for (int i = 0; i < Iterations; ++i){
-		//!< 距離関数 : サーフェスに対し、外部なら正の値、内部なら負の値を返す
+		//!< 距離関数 : サーフェスに対し、外部なら正の値、内部なら負の値を返す Distance function : Outside is positive, inside is negative about surface
 		//Distance = DistanceFunction_Torus(Pos, Center, Radius);
 		Distance = DistanceFunction_Sphere(Pos, Center, Radius.x);
 
-		//!< 距離に応じて、レイを進める (距離が負なら戻されることになる)
+		//!< 距離に応じて、レイを進める (距離が負なら戻されることになる) Progress ray
 		Length += Distance;
 		Pos = CameraPos + Ray * Length;
 
-		//!< リピート
+		//!< リピート Repeat
 		Pos = Mod(Pos, Repeate) - Repeate * 0.5f;
 	}
 
-	//!< シェーディング
+	//!< シェーディング Shading
 	const float3 LightDirection = float3(0.0f, -1.0f, 0.0f);	
 	//const float3 N = DistanceFunction_TorusNormal(Pos, Center, Radius);	
 	const float3 N = DistanceFunction_SphereNormal(Pos, Center, Radius.x);	
@@ -113,7 +113,7 @@ void Main(in float2 InUV : TEXCOORD0,
  	const float Spot = 1.0;
 	const float3 Color = (Ambient + (Diffuse(MaterialColor, LightColor.rgb, LN) + Specular(MaterialColor, LightColor, LN, L, N, V)) * Attenuate) * Spot;
 
-	//!< BGカラー
+	//!< BGカラー BG color
 	const float3 BackGroundColor = float3(0.5f, 0.5f, 1.0f);
 	
 	//!< サーフェスを表示するため、距離の絶対値がほぼ 0.0f なら 1 、それ以外なら 0 になるようなマスク値

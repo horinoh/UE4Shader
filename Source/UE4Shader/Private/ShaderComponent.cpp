@@ -15,7 +15,7 @@ UShaderComponent::UShaderComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 	bWantsInitializeComponent = true;
 
-	//!< コンテンツから持ってくる場合
+	//!< In case create from contents
 	//static ConstructorHelpers::FObjectFinder<UTextureRenderTarget2D> RT(TEXT("TextureRenderTarget2D'/Game/Textures/RT_Texture2D.RT_Texture2D'"));
 	//if (nullptr != RT.Object)
 	//{
@@ -77,7 +77,7 @@ void UShaderComponent::Draw()
 			GraphicsPS.BlendState = TStaticBlendState<>::GetRHI();
 			GraphicsPS.DepthStencilState = TStaticDepthStencilState<false, CF_Always>::GetRHI();
 
-			//!< GVertexDeclaration はこのファイルの先頭で定義してある
+			//!< GVertexDeclaration is defined head of this file
 			GraphicsPS.BoundShaderState.VertexDeclarationRHI = GVertexDeclaration.VertexDeclarationRHI;
 			GraphicsPS.BoundShaderState.VertexShaderRHI = GETSAFERHISHADER_VERTEX(*VertexShader);
 			GraphicsPS.BoundShaderState.PixelShaderRHI = GETSAFERHISHADER_PIXEL(*PixelShader);
