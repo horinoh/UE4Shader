@@ -8,8 +8,8 @@
 @brief ユニフォームバッファ
 */
 BEGIN_UNIFORM_BUFFER_STRUCT(FPixelShaderUniformBuffer, )
-DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, AspectRatio)
-DECLARE_UNIFORM_BUFFER_STRUCT_MEMBER(float, Timer)
+UNIFORM_MEMBER(float, AspectRatio)
+UNIFORM_MEMBER(float, Timer)
 END_UNIFORM_BUFFER_STRUCT(FPixelShaderUniformBuffer)
 
 /**
