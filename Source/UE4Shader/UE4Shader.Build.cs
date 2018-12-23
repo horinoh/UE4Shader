@@ -11,6 +11,8 @@ public class UE4Shader : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
+  		PrivatePCHHeaderFile = "UE4Shader.h";
+
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 		
