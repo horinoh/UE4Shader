@@ -70,9 +70,8 @@ void UShaderComponent::Draw()
 		TShaderMapRef<FVertexGlobalShader> VertexShader(GetGlobalShaderMap(ERHIFeatureLevel::Type::SM5));
 		TShaderMapRef<FPixelGlobalShader> PixelShader(GetGlobalShaderMap(ERHIFeatureLevel::Type::SM5));
 
+		FGraphicsPipelineStateInitializer GraphicsPS;
 		{
-			FGraphicsPipelineStateInitializer GraphicsPS;
-
 			GraphicsPS.RasterizerState = TStaticRasterizerState<>::GetRHI();
 			GraphicsPS.BlendState = TStaticBlendState<>::GetRHI();
 			GraphicsPS.DepthStencilState = TStaticDepthStencilState<false, CF_Always>::GetRHI();
@@ -81,15 +80,16 @@ void UShaderComponent::Draw()
 			GraphicsPS.BoundShaderState.VertexDeclarationRHI = GVertexDeclaration.VertexDeclarationRHI;
 			GraphicsPS.BoundShaderState.VertexShaderRHI = GETSAFERHISHADER_VERTEX(*VertexShader);
 			GraphicsPS.BoundShaderState.PixelShaderRHI = GETSAFERHISHADER_PIXEL(*PixelShader);
-			//GraphicsPS.PrimitiveType = PT_TriangleStrip;
+			GraphicsPS.PrimitiveType = PT_TriangleStrip;
 
 			SetGraphicsPipelineState(CommandList, GraphicsPS, EApplyRendertargetOption::ForceApply);
 		}
 
 		PixelShader->SetUniformBuffer(CommandList, UniformBuffer);
 		//PixelShader->SetSRV(CommandList, SRV);
+
+		TArray<FVertex> Vertices;
 		{
-			TArray<FVertex> Vertices;
 			Vertices.Add(FVertex());
 			Vertices.Last().Position = FVector4(-1.0f, 1.0f, 0.0f, 1.0f);
 			Vertices.Last().UV = FVector2D(0.0f, 0.0f);
@@ -105,31 +105,26 @@ void UShaderComponent::Draw()
 			Vertices.Add(FVertex());
 			Vertices.Last().Position = FVector4(1.0f, -1.0f, 0.0f, 1.0f);
 			Vertices.Last().UV = FVector2D(1.0f, 1.0f);
-
-#if 0
-			DrawPrimitiveUP(CommandList, PT_TriangleStrip, Vertices.Num() - 2, &Vertices[0], sizeof(Vertices[0]));
-#else
-			auto& RHICmdList = GRHICommandList.GetImmediateCommandList();
-			const auto PrimitiveType = PT_TriangleStrip;
-			const auto NumPrimitives = Vertices.Num() - 2;
-			const auto VertexData = &Vertices[0];
-			const auto VertexDataStride = sizeof(Vertices[0]);
-
-			check(NumPrimitives > 0);
-			const uint32 VertexCount = GetVertexCountForPrimitiveCount(NumPrimitives, PrimitiveType);
-
-			FRHIResourceCreateInfo CreateInfo;
-			FVertexBufferRHIRef VertexBufferRHI = RHICreateVertexBuffer(VertexDataStride * VertexCount, BUF_Volatile, CreateInfo);
-			void* VoidPtr = RHILockVertexBuffer(VertexBufferRHI, 0, VertexDataStride * VertexCount, RLM_WriteOnly);
-			FPlatformMemory::Memcpy(VoidPtr, VertexData, VertexDataStride * VertexCount);
-			RHIUnlockVertexBuffer(VertexBufferRHI);
-
-			RHICmdList.SetStreamSource(0, VertexBufferRHI, 0);
-			RHICmdList.DrawPrimitive(PrimitiveType, 0, NumPrimitives, 1);
-
-			VertexBufferRHI.SafeRelease();
-#endif
 		}
+
+		auto& RHICmdList = GRHICommandList.GetImmediateCommandList();
+		const auto NumPrimitives = Vertices.Num() - 2;
+		check(NumPrimitives > 0);
+		const auto VertexData = &Vertices[0];
+		const auto VertexDataStride = sizeof(Vertices[0]);
+		const uint32 VertexCount = GetVertexCountForPrimitiveCount(NumPrimitives, GraphicsPS.PrimitiveType);
+
+		FRHIResourceCreateInfo CreateInfo;
+		FVertexBufferRHIRef VertexBufferRHI = RHICreateVertexBuffer(VertexDataStride * VertexCount, BUF_Volatile, CreateInfo);
+		void* VoidPtr = RHILockVertexBuffer(VertexBufferRHI, 0, VertexDataStride * VertexCount, RLM_WriteOnly);
+		FPlatformMemory::Memcpy(VoidPtr, VertexData, VertexDataStride * VertexCount);
+		RHIUnlockVertexBuffer(VertexBufferRHI);
+
+		RHICmdList.SetStreamSource(0, VertexBufferRHI, 0);
+		RHICmdList.DrawPrimitive(GraphicsPS.PrimitiveType, 0, NumPrimitives, 1);
+
+		VertexBufferRHI.SafeRelease();
+
 		//PixelShader->UnsetSRV(CommandList);
 	}
 }
