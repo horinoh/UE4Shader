@@ -18,7 +18,7 @@ END_UNIFORM_BUFFER_STRUCT(FPixelShaderUniformBuffer)
 class UE4SHADER_API FPixelGlobalShader : public FGlobalShader
 {
 	DECLARE_SHADER_TYPE(FPixelGlobalShader, Global);
-
+	//DECLARE_EXPORTED_SHADER_TYPE(FPixelGlobalShader, Global,)
 public:
 	FPixelGlobalShader() {}
 	explicit FPixelGlobalShader(const ShaderMetaType::CompiledShaderInitializerType& Initializer);

@@ -35,7 +35,7 @@ public:
 class UE4SHADER_API FVertexGlobalShader : public FGlobalShader
 {
 	DECLARE_SHADER_TYPE(FVertexGlobalShader, Global);
-
+	//DECLARE_EXPORTED_SHADER_TYPE(FVertexGlobalShader, Global,)
 public:
 	FVertexGlobalShader() {}
 	explicit FVertexGlobalShader(const ShaderMetaType::CompiledShaderInitializerType& Initializer);
