@@ -7,10 +7,10 @@
 /**
 @brief ユニフォームバッファ
 */
-BEGIN_UNIFORM_BUFFER_STRUCT(FPixelShaderUniformBuffer, )
-UNIFORM_MEMBER(float, AspectRatio)
-UNIFORM_MEMBER(float, Timer)
-END_UNIFORM_BUFFER_STRUCT(FPixelShaderUniformBuffer)
+BEGIN_GLOBAL_SHADER_PARAMETER_STRUCT(FPixelShaderUniformBuffer, )
+SHADER_PARAMETER(float, AspectRatio)
+SHADER_PARAMETER(float, Timer)
+END_GLOBAL_SHADER_PARAMETER_STRUCT()
 
 /**
  * 

@@ -7,7 +7,7 @@ public class UE4Shader : ModuleRules
 	public UE4Shader(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore"
-                                                          , "RHI", "RenderCore", "ShaderCore" });
+                                                          , "RHI", "RenderCore" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
