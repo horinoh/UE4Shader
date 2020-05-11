@@ -22,7 +22,7 @@ void FPixelGlobalShader::SetUniformBuffer(FRHICommandList& CommandList, const FP
 {
 	TUniformBufferRef<FPixelShaderUniformBuffer> Buffer;
 	Buffer = TUniformBufferRef<FPixelShaderUniformBuffer>::CreateUniformBufferImmediate(UniformBuffer, UniformBuffer_SingleDraw);
-	SetUniformBufferParameter(CommandList, GetPixelShader(), GetUniformBufferParameter<FPixelShaderUniformBuffer>(), Buffer);
+	SetUniformBufferParameter(CommandList, CommandList.GetBoundPixelShader(), GetUniformBufferParameter<FPixelShaderUniformBuffer>(), Buffer);
 }
 
 IMPLEMENT_SHADER_TYPE(, FPixelGlobalShader, TEXT("/Project/Private/PixelGlobalShader.usf"), TEXT("Main"), SF_Pixel);

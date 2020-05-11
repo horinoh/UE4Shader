@@ -86,8 +86,8 @@ void UShaderComponent::Draw()
 
 				//!< GVertexDeclaration is defined head of this file
 				GraphicsPS.BoundShaderState.VertexDeclarationRHI = GVertexDeclaration.VertexDeclarationRHI;
-				GraphicsPS.BoundShaderState.VertexShaderRHI = GETSAFERHISHADER_VERTEX(*VertexShader);
-				GraphicsPS.BoundShaderState.PixelShaderRHI = GETSAFERHISHADER_PIXEL(*PixelShader);
+				GraphicsPS.BoundShaderState.VertexShaderRHI = VertexShader.GetVertexShader();
+				GraphicsPS.BoundShaderState.PixelShaderRHI = PixelShader.GetPixelShader();
 				GraphicsPS.PrimitiveType = PT_TriangleStrip;
 
 				SetGraphicsPipelineState(CommandList, GraphicsPS, EApplyRendertargetOption::ForceApply);

@@ -1,3 +1,4 @@
+#include "/Engine/Public/Platform.ush"
 //!< PSUniform ‚É•K—v
 //!< Need to use PSUniform
 #include "/Engine/Generated/GeneratedUniformBuffers.ush"
