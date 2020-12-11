@@ -4,6 +4,7 @@
 #include "PixelGlobalShader.h"
 
 #include "ShaderParameterUtils.h"
+#include "ShaderCompilerCore.h"
 
 IMPLEMENT_GLOBAL_SHADER_PARAMETER_STRUCT(FPixelShaderUniformBuffer, "PSUniform");
 
